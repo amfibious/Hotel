@@ -9,17 +9,21 @@ using System.Web;
 using System.Web.Mvc;
 using Hotel.Data;
 using Hotel.Models;
+using log4net;
 
 namespace Hotel.Controllers
 {
     public class RoomsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private static readonly ILog log = LogManager.GetLogger(nameof(RoomsController));
 
         // GET: Rooms
         public async Task<ActionResult> Index()
         {
-            return View(await db.Rooms.ToListAsync());
+            var rooms = await db.Rooms.ToListAsync();
+            log.Info($"List of Rooms: {rooms}");
+            return View(rooms);
         }
 
         // GET: Rooms/Details/5
@@ -30,6 +34,7 @@ namespace Hotel.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Room room = await db.Rooms.FindAsync(id);
+            log.Info($"Details of Room: {room.RoomNumber}");
             if (room == null)
             {
                 return HttpNotFound();
@@ -54,6 +59,7 @@ namespace Hotel.Controllers
             {
                 db.Rooms.Add(room);
                 await db.SaveChangesAsync();
+                log.Info($"Created Room: {room.RoomNumber}");
                 return RedirectToAction("Index");
             }
 
@@ -68,6 +74,7 @@ namespace Hotel.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Room room = await db.Rooms.FindAsync(id);
+            log.Info($"Get Room: {room.RoomNumber}");
             if (room == null)
             {
                 return HttpNotFound();
@@ -86,6 +93,7 @@ namespace Hotel.Controllers
             {
                 db.Entry(room).State = EntityState.Modified;
                 await db.SaveChangesAsync();
+                log.Info($"Edited to Room: {room.RoomNumber}");
                 return RedirectToAction("Index");
             }
             return View(room);
@@ -99,6 +107,7 @@ namespace Hotel.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Room room = await db.Rooms.FindAsync(id);
+            log.Info($"Get Room: {room.RoomNumber}");
             if (room == null)
             {
                 return HttpNotFound();
@@ -114,6 +123,7 @@ namespace Hotel.Controllers
             Room room = await db.Rooms.FindAsync(id);
             db.Rooms.Remove(room);
             await db.SaveChangesAsync();
+            log.Info($"Deleted Room: {room.RoomNumber}");
             return RedirectToAction("Index");
         }
 
